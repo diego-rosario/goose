@@ -53,9 +53,11 @@ Do not rebuild the wiring from memory. With every power source disconnected, reo
 - PCA9685 channel pairs CH0/1, CH2/3, CH4/5, and CH6/7 reach the four labeled L298N input pairs;
 - both L298N grounds, PCA9685 ground, ROCK 5C ground, and motor-supply negative are common;
 - PCA9685 `V+` is unused; and
-- neither L298N 5 V terminal powers the ROCK 5C or PCA9685 logic.
+- neither L298N 5 V terminal powers the ROCK 5C or PCA9685 logic;
+- the ROCK 5C has exactly one power source connected; and
+- the dedicated mobile converter is set to 5.0 V, is rated for at least 3 A continuous output, and is not paralleled with either L298N regulator.
 
-For the first test, keep the XT60/battery path disconnected. Power the ROCK 5C from its approved adapter and leave the current-limited motor supply output off until I2C and software initialization pass.
+For the first test, keep the XT60/battery path disconnected. Power the ROCK 5C from its approved adapter and leave the current-limited motor supply output off until I2C and software initialization pass. In the later mobile configuration, disconnect the adapter before connecting the verified 5.0 V converter. See [Activity 03 Part 6D](../03_mounting_and_wiring/README.md#6d---complete-power-and-ground-wiring) for the one-source power rule and its rationale.
 
 ## Part 3 - Enable I2C8-M2
 

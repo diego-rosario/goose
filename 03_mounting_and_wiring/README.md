@@ -14,7 +14,7 @@ This activity separates electrical and mechanical problems from software problem
 - Each motor can turn in both directions using the appropriate input pair.
 - PWM duty cycle changes motor speed.
 - All signal sources share a reference ground.
-- The DC-DC converter is adjusted to approximately 5 V before it is allowed near the ROCK 5C.
+- The dedicated ROCK 5C DC-DC converter is adjusted to 5.0 V and has adequate continuous-current capacity before it is allowed near the computer.
 - ROCK 5C physical pins 1, 3, 5, and 9 connect to the correct PCA9685 logic pins.
 - PCA9685 channels 0-7 connect to the four matching L298N direction-input pairs.
 - The completed wiring passes an unpowered inspection before Activity 04 begins.
@@ -97,10 +97,11 @@ Complete this part only under instructor supervision.
 1. Solder the required branch wires to the male XT60 connector and protect every joint with heat-shrink.
 2. Connect battery/motor voltage only to the **input** side of the buck converter. Observe polarity.
 3. With the converter output disconnected from the ROCK 5C, energize the input and measure the output with a multimeter.
-4. Adjust the potentiometer until the output is approximately 5 V.
-5. Switch power off, verify the reading falls, re-energize, and verify the 5 V setting again.
+4. Adjust the potentiometer until the output is 5.0 V. Do not use 5.2 V as the target.
+5. Switch power off, verify the reading falls, re-energize, and verify the 5.0 V setting again.
 6. Insulate the converter without creating an electrical short or blocking necessary heat dissipation.
 7. Label the input, output, positive, and ground conductors.
+8. Confirm that the complete converter module—not only its regulator chip—is rated for at least 3 A continuous output. A module with additional current margin is preferred for the ROCK 5C and its peripherals. If the module's continuous rating is unknown, do not assume that an advertised peak-current value is safe; ask the instructor and load-test the converter before connecting the ROCK 5C.
 
 ![Preparing the XT60 harness](assets/build_steps/05_xt60_harness.jpg)
 
@@ -110,11 +111,13 @@ Complete this part only under instructor supervision.
 
 ![Insulated converter](assets/build_steps/08_insulate_buck_converter.jpg)
 
-**Critical:** never connect the ROCK 5C until the output polarity and approximately 5 V level have been measured at the actual USB-C/power connector.
+**Critical:** never connect the ROCK 5C until the output polarity and 5.0 V level have been measured at the actual USB-C/power connector.
 
 ## Part 6 - Complete the Integrated Wiring
 
 Do this part only after Parts 1-5 pass. Disconnect the bench supply, function generator, battery, ROCK 5C adapter, and XT60 connector before touching any wire. Use the full-resolution diagram as the wiring overview; use the tables below for the exact checked connections.
+
+> **Corrections to the legacy diagram:** use the diagram for motor, signal, and common-ground routing, but do **not** follow its `5.2 V` label or any connection that joins an L298N `5V` terminal to the ROCK 5C power rail. Set the dedicated ROCK 5C converter to **5.0 V**. The written power instructions and connection table in this README supersede those two details in the image.
 
 [Open the full-resolution GooseBot wiring diagram](assets/goose_wiring.png)
 
@@ -122,7 +125,7 @@ Do this part only after Parts 1-5 pass. Disconnect the bench supply, function ge
 
 > **Power-stage warning:** The diagram includes the final battery and DC-DC-converter path. Do not use that mobile-power path for the first Activity 04 test. Initially power the ROCK 5C from its approved adapter and the two L298N motor drivers from a current-limited bench supply. The signal wiring and common ground remain the same.
 
-> **About the diagram's 5.2 V label:** It records a prototype setting intended to compensate for cable drop. Radxa specifies a 5 V input for the ROCK 5C. Use approximately 5.0 V measured at the actual USB-C connector unless the instructor explicitly approves a measured 5.2 V setting for the exact converter and cable. Never adjust the converter while it is connected to the ROCK 5C.
+> **ROCK 5C power requirement:** Radxa specifies a 5 V supply and recommends 3 A or more for stable operation with peripherals. Measure 5.0 V at the ROCK 5C power connector under load. Correct excessive cable drop with suitable wiring and connectors, not by adding another regulator output or increasing the set point to 5.2 V. Never adjust the converter while it is connected to the ROCK 5C.
 
 ### 6A - Return the Drivers to Their Final Input Configuration
 
@@ -164,9 +167,11 @@ The order within a pair determines the sign of positive speed. Do not rewire a p
 1. Connect the positive motor-supply branch to the motor-voltage input on both L298N boards.
 2. Connect the motor-supply negative terminal to both L298N grounds.
 3. Join ROCK 5C ground, PCA9685 ground, both L298N grounds, and motor-supply negative into one common reference.
-4. Leave each L298N module's 5 V terminal in the instructor-approved board configuration. **Do not use an L298N 5 V terminal to power the ROCK 5C or PCA9685 `VCC`.**
-5. For the later mobile configuration only, the XT60 positive and negative branches feed the motor drivers and the input of the DC-DC converter. The converter's verified output feeds the dedicated ROCK 5C power lead.
-6. Leave the XT60 connector unplugged and the ROCK 5C power lead disconnected until the instructor inspection in Part 7 and the staged power-up in Activity 04.
+4. Leave each L298N module's 5 V terminal in the instructor-approved board configuration. It supplies the driver board's local logic and may be available for small auxiliary loads depending on the exact module; it is **not supplemental ROCK 5C power**. Do not connect an L298N 5 V terminal to the ROCK 5C or PCA9685 `VCC`.
+5. Power the ROCK 5C from exactly one source at a time: its approved adapter during bench testing, or the dedicated 5.0 V DC-DC converter in the mobile configuration. Never connect the adapter and mobile converter simultaneously.
+6. Do not connect the outputs of the DC-DC converter and either L298N 5 V regulator together. Ordinary regulator outputs do not automatically share current: a small voltage difference can make one source carry most of the load or feed current backward into another. Redundant or additive supplies require purpose-designed ideal-diode or current-sharing circuitry, which this robot does not include.
+7. For the later mobile configuration only, the XT60 positive and negative branches feed the motor drivers and the input of the dedicated ROCK 5C DC-DC converter. Only the converter's verified 5.0 V output feeds the ROCK 5C power lead.
+8. Leave the XT60 connector unplugged and the ROCK 5C power lead disconnected until the instructor inspection in Part 7 and the staged power-up in Activity 04.
 
 Route signal wires separately from wheel paths and exposed motor terminals. Add strain relief so a cable cannot pull a jumper off the ROCK 5C or PCA9685 header.
 
@@ -182,7 +187,9 @@ Complete this handoff checklist:
 - [ ] PCA9685 `V+` is not connected to a ROCK 5C GPIO or L298N input;
 - [ ] both L298N grounds, PCA9685 ground, ROCK 5C ground, and motor-supply negative are common;
 - [ ] no L298N 5 V terminal powers the ROCK 5C or PCA9685 logic;
-- [ ] the DC-DC output polarity and approximately 5 V setting were measured while disconnected from the ROCK 5C;
+- [ ] the ROCK 5C has only one connected power source, and no regulator outputs are paralleled;
+- [ ] the dedicated converter's continuous-current rating is at least 3 A and appropriate for the expected peripherals;
+- [ ] the DC-DC output polarity and 5.0 V setting were measured while disconnected from the ROCK 5C;
 - [ ] no bare conductor, loose screw-terminal strand, or wire can contact a wheel or neighboring terminal;
 - [ ] `ENA` and `ENB` jumpers are installed on both L298N modules; and
 - [ ] the instructor has approved the unpowered wiring for staged power-up.
@@ -200,6 +207,8 @@ No shell command is required. In this activity, the important control terms are:
 | common ground | shared zero-volt reference used to interpret control signals |
 | H-bridge | switching circuit that applies either polarity across a DC motor |
 | current limit | maximum current the bench supply will deliver before reducing voltage |
+| current sharing | a designed method that balances load between compatible parallel supplies; simply joining regulator outputs is not current sharing |
+| backfeed | unintended current flowing from one active supply into another supply's output |
 | `VCC` | PCA9685 3.3 V logic supply from ROCK 5C physical pin 1 |
 | `V+` | separate PCA9685 servo-power rail; unused in this motor-driver configuration |
 | SDA / SCL | I2C data and clock signals on ROCK 5C physical pins 3 and 5 |
